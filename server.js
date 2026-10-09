@@ -1,5 +1,6 @@
 const express = require("express");
 const { Pool } = require("pg");
+const cors = require("cors");
 
 const pool = new Pool({
   host: process.env.DB_HOST,
@@ -11,6 +12,7 @@ const pool = new Pool({
 });
 
 const app = express();
+app.use(cors({ origin: ["http://localhost:5173","https://main.d26izn6e4w196x.amplifyapp.com"] }));
 app.use(express.json());
 
 function parseId(req, res) {
@@ -122,3 +124,4 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(3000, () => console.log("API lyssnar på port 3000"));
+[ec2-user@ip-10-0-7-252 ~]$ 
