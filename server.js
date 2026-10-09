@@ -83,6 +83,23 @@ app.put("/customers/:id", async (req, res) => {
   res.json(rows[0]);
 });
 
+app.patch("/customers/:id", async (req, res) => {
+  const id = parseId(req, res);
+  if (id === null) return;
+  const name = req.body?.name;
+  if (name !== undefined && (typeof name !== "string" || !name.trim())) {
+    return res.status(400).json({ error: "name must be a non-empty string" });
+  }
+  const { rows } = await pool.query(
+    "UPDATE customers SET name = COALESCE($1, name) WHERE id = $2 RETURNING id, name, created_at",
+    [name?.trim() ?? null, id]
+  );
+  if (rows.length === 0) {
+    return res.status(404).json({ error: `customer ${id} not found` });
+  }
+  res.json(rows[0]);
+});
+
 app.delete("/customers/:id", async (req, res) => {
   const id = parseId(req, res);
   if (id === null) return;
