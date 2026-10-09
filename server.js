@@ -27,8 +27,16 @@ app.get("/health", (req, res) => {
 });
 
 app.get("/customers", async (req, res) => {
+  let limit = null;
+  if (req.query.limit !== undefined) {
+    limit = Number(req.query.limit);
+    if (!Number.isInteger(limit) || limit < 1) {
+      return res.status(400).json({ error: `limit must be a positive integer, got "${req.query.limit}"` });
+    }
+  }
   const { rows } = await pool.query(
-    "SELECT id, name, created_at FROM customers ORDER BY id"
+    "SELECT id, name, created_at FROM customers ORDER BY id LIMIT $1",
+    [limit]
   );
   res.json(rows);
 });
